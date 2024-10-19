@@ -18,26 +18,20 @@ class Marenimalt:
         data: list[dict[str,str]],
         cfg: MarenimaltConfig = MarenimaltConfig()):
         self.data = data
-        self.scene = MarenimaltScene(data, cfg)
+        self.cfg = cfg
 
     def export(
         self,
         filename: str,
         manim_config: dict = {
-            # Do not touch
-            # For some reason specifying a quality key here completely breaks manim
-            #'quality': 'medium_quality',
-
-            # Has anyone even tried specifying quality manually?
-            # pixel_width, pixel_height all break decoding
-
+            'quality': 'low_quality',
             'preview': True,
-
             # Sound does not work without disable_caching
             'disable_caching': True,
         }):
         with tempconfig(manim_config):
-            self.scene.render()
+            scene = MarenimaltScene(self.data, self.cfg)
+            scene.render()
 
 class MarenimaltScene(Scene):
     def __init__(self, inpdata, cfg):
