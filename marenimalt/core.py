@@ -147,7 +147,7 @@ class MarenimaltOrderScene(Scene):
             # TODO dry
             should_wait = False
             if character_img is None:
-                character_img = ImageMObject(_image)
+                character_img = ImageMobject(_image)
                 character_img.scale(0.3)
                 self.play(FadeIn(character_img, run_time=self.transition_times))
                 should_wait = True
