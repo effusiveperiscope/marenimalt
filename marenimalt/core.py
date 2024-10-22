@@ -125,6 +125,7 @@ class MarenimaltScene(Scene):
 
 class MarenimaltOrderScene(Scene):
     def __init__(self, inpdata : list, cfg : MarenimaltConfig):
+        super().__init__()
         self.inpdata = inpdata
         self.cfg = cfg
         self.transition_times = 0.5
