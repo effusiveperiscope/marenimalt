@@ -28,11 +28,16 @@ class Marenimalt:
             'preview': True,
             # Sound does not work without disable_caching
             'disable_caching': True,
-        }):
+        },
+        use_ordered : bool = False):
         with tempconfig(manim_config):
-            scene = MarenimaltScene(self.data, self.cfg)
+            if not use_ordered:
+                scene = MarenimaltScene(self.data, self.cfg)
+            else:
+                scene = MarenimaltOrderScene(self.data, self.cfg)
             scene.render()
 
+# Non-order preserving
 class MarenimaltScene(Scene):
     def __init__(self, inpdata, cfg):
         super().__init__()
@@ -86,7 +91,7 @@ class MarenimaltScene(Scene):
                 d: list
 
                 imgobj = ImageMobject(image_loc)
-                image.scale(0.3)
+                imgobj.scale(0.3)
                 self.play(FadeIn(imgobj, run_time=self.transition_times))
 
                 for record in d:
@@ -117,3 +122,71 @@ class MarenimaltScene(Scene):
                 last_image = image
 
             self.play(FadeOut(text, run_time=self.transition_times))
+
+class MarenimaltOrderScene(Scene):
+    def __init__(self, inpdata : list, cfg : MarenimaltConfig):
+        self.inpdata = inpdata
+        self.cfg = cfg
+        self.transition_times = 0.5
+
+    def construct(self):
+        last_model = None
+        model_text = None
+        last_character = None
+        character_img = None
+        last_utterance = None
+        utterance_text = None
+        for record in self.inpdata:
+            _type = record['type']
+            if self.cfg.type_map is not None:
+                _type = self.cfg.type_map[_type]
+            _image = record['character']
+            if self.cfg.image_map is not None:
+                _image = self.cfg.image_map[_image]
+
+            # TODO dry
+            should_wait = False
+            if character_img is None:
+                character_img = ImageMObject(_image)
+                character_img.scale(0.3)
+                self.play(FadeIn(character_img, run_time=self.transition_times))
+                should_wait = True
+            elif last_character != _image and character_img is not None:
+                character_img = ImageMObject(_image)
+                character_img.scale(0.3)
+                self.play(FadeIn(character_img, run_time=self.transition_times))
+                should_wait = True
+
+            if model_text is None:
+                model_text = MarkupText(wrap_text(_type, width=50),
+                    font_size=24.0)
+                model_text.to_edge(DOWN)
+                self.play(Write(model_text, run_time=self.transition_times))
+                should_wait = True
+            elif last_model != _type and model_text is not None:
+                self.play(FadeOut(model_text, run_time=self.transition_times))
+                model_text = MarkupText(wrap_text(_type, width=50),
+                    font_size=24.0)
+                self.play(Write(model_text, run_time=self.transition_times))
+                should_wait = True
+
+            _utterance = record['utterance']
+            if utterance_text is None:
+                utterance_text = MarkupText(wrap_text(_utterance, width=50),
+                    font_size=24.0)
+                utterance_text.to_edge(DOWN)
+                self.play(Write(utterance_text, run_time=self.transition_times))
+                should_wait = True
+            elif last_utterance != _utterance and utterance_text is not None:
+                self.play(FadeOut(utterance_text, run_time=self.transition_times))
+                utterance_text = MarkupText(wrap_text(_utterance, width=50),
+                    font_size=24.0)
+                self.play(Write(utterance_text, run_time=self.transition_times))
+                should_wait = True
+
+            if should_wait:
+                self.wait(self.transition_times)
+
+            last_model = _type
+            last_character = _image
+            last_utterance = _utterance
