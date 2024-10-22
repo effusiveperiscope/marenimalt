@@ -168,6 +168,7 @@ class MarenimaltOrderScene(Scene):
                 self.play(FadeOut(model_text, run_time=self.transition_times))
                 model_text = MarkupText(wrap_text(_type, width=50),
                     font_size=24.0)
+                model_text.to_edge(DOWN)
                 self.play(Write(model_text, run_time=self.transition_times))
                 should_wait = True
 
@@ -175,18 +176,25 @@ class MarenimaltOrderScene(Scene):
             if utterance_text is None:
                 utterance_text = MarkupText(wrap_text(_utterance, width=50),
                     font_size=24.0)
-                utterance_text.to_edge(DOWN)
+                utterance_text.to_edge(UP)
                 self.play(Write(utterance_text, run_time=self.transition_times))
                 should_wait = True
             elif last_utterance != _utterance and utterance_text is not None:
                 self.play(FadeOut(utterance_text, run_time=self.transition_times))
                 utterance_text = MarkupText(wrap_text(_utterance, width=50),
                     font_size=24.0)
+                utterance_text.to_edge(UP)
                 self.play(Write(utterance_text, run_time=self.transition_times))
                 should_wait = True
 
             if should_wait:
                 self.wait(self.transition_times)
+
+            audio_file = record['audio_file']
+            audio = AudioSegment.from_file(audio_file)
+            duration = len(audio) / 1000.0
+            self.add_sound(audio_file)
+            self.wait(duration)
 
             last_model = _type
             last_character = _image
