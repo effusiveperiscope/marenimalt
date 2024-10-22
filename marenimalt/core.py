@@ -71,6 +71,8 @@ class MarenimaltScene(Scene):
         #self.play(Write(text))
         last_type = None
         text2 = None
+        last_image = None
+        imgobj = None
         for content, imd in self.contents.items():
             c: dict
             text = MarkupText(wrap_text(content, width=50), font_size=24.0)
@@ -83,9 +85,9 @@ class MarenimaltScene(Scene):
                     image_loc = self.cfg.image_map[image_loc]
                 d: list
 
-                image = ImageMobject(image_loc)
+                imgobj = ImageMobject(image_loc)
                 image.scale(0.3)
-                self.play(FadeIn(image, run_time=self.transition_times))
+                self.play(FadeIn(imgobj, run_time=self.transition_times))
 
                 for record in d:
                     audio_file = record['audio_file']
@@ -96,7 +98,6 @@ class MarenimaltScene(Scene):
                     audio = AudioSegment.from_file(audio_file)
                     duration = len(audio) / 1000.0
 
-                    self.add_sound(audio_file)
                     if text2 is None:
                         text2 = MarkupText(wrap_text(_type, width=50),
                             font_size=24.0)
@@ -108,9 +109,11 @@ class MarenimaltScene(Scene):
                             font_size=24.0)
                         text2.to_edge(DOWN)
                         self.play(Write(text2, run_time=self.transition_times))
+                    self.add_sound(audio_file)
                     self.wait(duration)
                     last_type = _type
 
-                self.play(FadeOut(image, run_time=self.transition_times))
+                self.play(FadeOut(imgobj, run_time=self.transition_times))
+                last_image = image
 
             self.play(FadeOut(text, run_time=self.transition_times))
