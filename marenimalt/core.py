@@ -96,7 +96,7 @@ class MarenimaltScene(Scene):
 
                 for record in d:
                     audio_file = record['audio_file']
-                    _type = record['type']
+                    _type = record['model']
                     if self.cfg.type_map is not None:
                         _type = self.cfg.type_map[_type]
 
@@ -137,10 +137,10 @@ class MarenimaltOrderScene(Scene):
         last_utterance = None
         utterance_text = None
         for record in self.inpdata:
-            _type = record['type']
+            _type = record[self.cfg.type_key]
             if self.cfg.type_map is not None:
                 _type = self.cfg.type_map[_type]
-            _image = record['character']
+            _image = record[self.cfg.image_key]
             if self.cfg.image_map is not None:
                 _image = self.cfg.image_map[_image]
 
@@ -170,7 +170,7 @@ class MarenimaltOrderScene(Scene):
                 self.play(Write(model_text, run_time=self.transition_times))
                 should_wait = True
 
-            _utterance = record['utterance']
+            _utterance = record[self.cfg.content_key]
             if utterance_text is None:
                 utterance_text = MarkupText(wrap_text(_utterance, width=50),
                     font_size=24.0)
