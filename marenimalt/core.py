@@ -69,6 +69,8 @@ class MarenimaltScene(Scene):
 
         #text = Text('Hello world').scale(3)
         #self.play(Write(text))
+        last_type = None
+        text2 = None
         for content, imd in self.contents.items():
             c: dict
             text = MarkupText(wrap_text(content, width=50), font_size=24.0)
@@ -94,14 +96,20 @@ class MarenimaltScene(Scene):
                     audio = AudioSegment.from_file(audio_file)
                     duration = len(audio) / 1000.0
 
-                    text2 = MarkupText(wrap_text(_type, width=50),
-                        font_size=24.0)
-                    text2.to_edge(DOWN)
-
                     self.add_sound(audio_file)
-                    self.play(Write(text2, run_time=self.transition_times))
+                    if text2 is None:
+                        text2 = MarkupText(wrap_text(_type, width=50),
+                            font_size=24.0)
+                        text2.to_edge(DOWN)
+                        self.play(Write(text2, run_time=self.transition_times))
+                    elif last_type != _type and text2 is not None:
+                        self.play(FadeOut(text2, run_time=self.transition_times))
+                        text2 = MarkupText(wrap_text(_type, width=50),
+                            font_size=24.0)
+                        text2.to_edge(DOWN)
+                        self.play(Write(text2, run_time=self.transition_times))
                     self.wait(duration)
-                    self.play(FadeOut(text2, run_time=self.transition_times))
+                    last_type = _type
 
                 self.play(FadeOut(image, run_time=self.transition_times))
 
